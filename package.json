@@ -7,9 +7,9 @@
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd backend && npm start",
     "server:dev": "cd backend && npm run dev",
-    "client": "cd frontend && npm start",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "test": "concurrently \"cd backend && npm test\" \"cd frontend && npm test\""
+    "client": "cd client && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../client && npm install",
+    "test": "concurrently \"cd backend && npm test\" \"cd client && npm test\""
   },
   "dependencies": {
     "concurrently": "^8.2.1",
@@ -20,6 +20,6 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.1",
-    "react-scripts": "^0.0.0"
+    "react-scripts": "5.0.1"
   }
 }
