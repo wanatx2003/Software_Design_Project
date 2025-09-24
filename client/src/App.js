@@ -9,6 +9,7 @@ import Register from './components/auth/Register';
 // User Components
 import UserProfile from './components/user/UserProfile';
 import Dashboard from './components/dashboard/Dashboard';
+import AdminDashboard from './components/dashboard/AdminDashboard';
 
 // Admin Components
 import EventManagement from './components/admin/EventManagement';
@@ -79,7 +80,13 @@ function App() {
         <NotificationSystem />
         <div className="container">
           <Routes>
-            <Route path="/" element={isAuthenticated ? <Dashboard user={user} /> : <Navigate to="/login" />} />
+            {/* Home route - redirects based on role */}
+            <Route path="/" element={
+              !isAuthenticated ? <Navigate to="/login" /> : 
+              user?.role === 'admin' ? <AdminDashboard user={user} /> :
+              <Dashboard user={user} />
+            } />
+            
             <Route path="/login" element={<Login login={login} isAuthenticated={isAuthenticated} />} />
             <Route path="/register" element={<Register login={login} isAuthenticated={isAuthenticated} />} />
             
@@ -102,6 +109,14 @@ function App() {
             />
             
             {/* Admin Routes */}
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={user?.role === 'admin'}>
+                  <AdminDashboard user={user} />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/admin/events" 
               element={

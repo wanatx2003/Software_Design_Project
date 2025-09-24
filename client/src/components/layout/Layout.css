@@ -5,6 +5,7 @@
   padding: 1rem 2rem;
   background-color: #2c3e50;
   color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .navbar-brand a {
@@ -14,8 +15,35 @@
   text-decoration: none;
 }
 
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.bar {
+  height: 3px;
+  width: 100%;
+  background-color: white;
+  border-radius: 10px;
+}
+
 .navbar-links {
   display: flex;
+  align-items: center;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -23,16 +51,75 @@
 
 .navbar-links li {
   margin-left: 1.5rem;
+  position: relative;
 }
 
 .navbar-links a {
   color: #fff;
   text-decoration: none;
+  padding: 0.5rem 0;
+  font-size: 1rem;
   transition: color 0.3s ease;
 }
 
 .navbar-links a:hover {
   color: #3498db;
+}
+
+.dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown-toggle {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-toggle::after {
+  content: "▼";
+  font-size: 0.6rem;
+  margin-left: 5px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #34495e;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  padding: 0.5rem 0;
+  border-radius: 4px;
+  display: none;
+  z-index: 1000;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+}
+
+.dropdown-menu a:hover {
+  background-color: #2c3e50;
+}
+
+.navbar-user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.user-greeting {
+  margin-right: 1rem;
+  font-size: 0.9rem;
+  color: #ecf0f1;
 }
 
 .logout-button {
@@ -43,6 +130,7 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
 .logout-button:hover {
@@ -53,20 +141,58 @@
 @media screen and (max-width: 768px) {
   .navbar {
     flex-direction: column;
+    align-items: flex-start;
     padding: 1rem;
   }
   
   .navbar-brand {
-    margin-bottom: 1rem;
+    width: 100%;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
   }
   
   .navbar-links {
+    display: none;
     flex-direction: column;
     width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .navbar-links.active {
+    display: flex;
   }
   
   .navbar-links li {
     margin: 0.5rem 0;
-    text-align: center;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    background-color: transparent;
+    padding-left: 1rem;
+  }
+  
+  .dropdown:hover .dropdown-menu {
+    display: none;
+  }
+  
+  .dropdown.active .dropdown-menu {
+    display: block;
+  }
+  
+  .navbar-user-info {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0.5rem 0;
+  }
+  
+  .user-greeting {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
   }
 }
