@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
+import { mockAuthApi } from '../../utils/mockApi';
 
 const Login = ({ login, isAuthenticated }) => {
   const [formData, setFormData] = useState({
@@ -41,28 +42,15 @@ const Login = ({ login, isAuthenticated }) => {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        setErrors({ general: data.message || 'Login failed' });
-        setLoading(false);
-        return;
-      }
+      // Use mock API instead of real fetch
+      const data = await mockAuthApi.login(formData);
       
       login(data.token, data.user);
       navigate('/');
       
     } catch (err) {
       console.error('Login error:', err);
-      setErrors({ general: 'Login failed. Please try again.' });
+      setErrors({ general: err.message || 'Login failed. Please try again.' });
       setLoading(false);
     }
   };
@@ -72,6 +60,13 @@ const Login = ({ login, isAuthenticated }) => {
       <div className="auth-form-container">
         <h2>Log In</h2>
         {errors.general && <div className="error-message">{errors.general}</div>}
+        
+        {/* Add demo information */}
+        <div className="demo-info">
+          <p>Demo Login:</p>
+          <p>Admin: admin@example.com / password</p>
+          <p>Volunteer: volunteer@example.com / password</p>
+        </div>
         
         <form onSubmit={onSubmit} className="auth-form">
           <div className="form-group">

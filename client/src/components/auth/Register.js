@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 
+// Import mock API
+import { mockAuthApi } from '../../utils/mockApi';
+
 const Register = ({ login, isAuthenticated }) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -59,29 +62,16 @@ const Register = ({ login, isAuthenticated }) => {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        setErrors({ general: data.message || 'Registration failed' });
-        setLoading(false);
-        return;
-      }
+      // Use mock API instead of real fetch
+      const data = await mockAuthApi.register(formData);
       
       // Automatically log the user in after successful registration
       login(data.token, data.user);
-      navigate('/');
+      navigate('/profile');
       
     } catch (err) {
       console.error('Registration error:', err);
-      setErrors({ general: 'Registration failed. Please try again.' });
+      setErrors({ general: err.message || 'Registration failed. Please try again.' });
       setLoading(false);
     }
   };

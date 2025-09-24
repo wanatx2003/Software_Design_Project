@@ -20,6 +20,9 @@ import VolunteerHistory from './components/volunteer/VolunteerHistory';
 import Navbar from './components/layout/Navbar';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 
+// Import mock API
+import { mockAuthApi } from './utils/mockApi';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -31,13 +34,8 @@ function App() {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          // Fetch user data
-          const response = await fetch('/api/auth/verify', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          const data = await response.json();
+          // Use mock API instead of real fetch for now
+          const data = await mockAuthApi.verify();
           if (data.user) {
             setIsAuthenticated(true);
             setUser(data.user);
