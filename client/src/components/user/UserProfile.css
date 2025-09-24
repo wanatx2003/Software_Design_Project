@@ -19,6 +19,20 @@
   margin-bottom: 20px;
 }
 
+
+.checkbox-option{
+  display: flex;
+  align-items:flex-start;
+  justify-content: space-around;
+  margin-bottom: 0.5rem;
+
+}
+.checkbox-option label{
+  
+  width:120px;
+}
+
+
 input, select, textarea {
   width: 100%;
   padding: 10px;

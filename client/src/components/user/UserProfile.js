@@ -126,14 +126,18 @@ const UserProfile = ({ user }) => {
     }
   };
   
-  const handleSkillChange = e => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setProfile({ ...profile, skills: selectedOptions });
-    
-    // Clear error when field is edited
-    if (errors.skills) {
-      setErrors({ ...errors, skills: undefined });
-    }
+  const handleSkillChange = (e) => {
+    const { value, checked } = e.target;
+    setProfile((prevProfile) => {
+      const currentSkills = prevProfile.skills || []; // fallback to empty array
+
+      return {
+        ...prevProfile,
+        skills: checked
+          ? [...currentSkills, value] // add skill
+          : currentSkills.filter((skill) => skill !== value), // remove skill
+      };
+    });
   };
   
   const handleDateChange = dates => {
@@ -334,28 +338,28 @@ const UserProfile = ({ user }) => {
             value={profile.zipCode}
             onChange={handleChange}
             maxLength="10"
-            placeholder="12345 or 12345-6789"
+            placeholder="12345"
             className={errors.zipCode ? 'error' : ''}
           />
           {errors.zipCode && <span className="error-text">{errors.zipCode}</span>}
         </div>
         
         {/* Skills */}
+
         <div className="form-group">
           <label htmlFor="skills">Skills <span className="required">*</span></label>
-          <select
-            id="skills"
-            name="skills"
-            multiple
-            value={profile.skills}
-            onChange={handleSkillChange}
-            className={errors.skills ? 'error' : ''}
-          >
-            {SKILL_OPTIONS.map(skill => (
-              <option key={skill.value} value={skill.value}>{skill.label}</option>
-            ))}
-          </select>
-          <small>Hold Ctrl/Cmd to select multiple skills</small>
+          {SKILL_OPTIONS.map(skill => (
+            <div key={skill.value} className="checkbox-option">
+              <label htmlFor={`skill-${skill.value}`}>{skill.label}</label>
+              <input
+                type="checkbox"
+                id={`skill-${skill.value}`}
+                value={skill.value}
+                checked={profile.skills.includes(skill.value)}
+                onChange={handleSkillChange}
+              />
+            </div>
+          ))}
           {errors.skills && <span className="error-text">{errors.skills}</span>}
         </div>
         
