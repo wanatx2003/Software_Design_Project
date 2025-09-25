@@ -7,8 +7,6 @@ import { mockAuthApi } from '../../utils/mockApi';
 
 const Register = ({ login, isAuthenticated }) => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -25,18 +23,13 @@ const Register = ({ login, isAuthenticated }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  const { firstName, lastName, email, password, confirmPassword } = formData;
+  const {email, password, confirmPassword } = formData;
 
   const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const validateForm = () => {
     const errors = {};
-    
-    // First name validation
-    if (!firstName.trim()) errors.firstName = 'First name is required';
-    
-    // Last name validation
-    if (!lastName.trim()) errors.lastName = 'Last name is required';
+
     
     // Email validation
     if (!email) errors.email = 'Email is required';
@@ -83,31 +76,6 @@ const Register = ({ login, isAuthenticated }) => {
         {errors.general && <div className="error-message">{errors.general}</div>}
         
         <form onSubmit={onSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="firstName">First Name</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={firstName}
-              onChange={onChange}
-              className={errors.firstName ? 'error' : ''}
-            />
-            {errors.firstName && <span className="error-text">{errors.firstName}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={lastName}
-              onChange={onChange}
-              className={errors.lastName ? 'error' : ''}
-            />
-            {errors.lastName && <span className="error-text">{errors.lastName}</span>}
-          </div>
           
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
