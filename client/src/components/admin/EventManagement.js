@@ -94,18 +94,14 @@ const EventManagement = () => {
     }
   };
   
-  const handleSkillChange = (e) => {
-    const { value, checked } = e.target;
-    setCurrentEvent((prevProfile) => {
-      const currentSkills = prevProfile.requiredSkills || []; // fallback to empty array
-
-      return {
-        ...prevProfile,
-        requiredSkills: checked
-          ? [...currentSkills, value] // add skill
-          : currentSkills.filter((skill) => skill !== value), // remove skill
-      };
-    });
+  const handleSkillChange = e => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setCurrentEvent({ ...currentEvent, requiredSkills: selectedOptions });
+    
+    // Clear error when field is edited
+    if (errors.requiredSkills) {
+      setErrors({ ...errors, requiredSkills: undefined });
+    }
   };
   
   const handleDateChange = date => {
@@ -324,23 +320,7 @@ const EventManagement = () => {
               {errors.requiredSkills && <span className="error-text">{errors.requiredSkills}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="requiredSkills">Required Skills <span className="required">*</span></label>
-              {SKILL_OPTIONS.map(skill => (
-                <div key={skill.value} className="checkbox-option">
-                  <label htmlFor={`skill-${skill.value}`}>{skill.label}</label>
-                  <input
-                    type="checkbox"
-                    id={`skill-${skill.value}`}
-                    value={skill.value}
-                    checked={currentEvent.requiredSkills.includes(skill.value)}
-                    onChange={handleSkillChange}
-                  />
-                </div>
-              ))}
-              {errors.skills && <span className="error-text">{errors.skills}</span>}
-            </div>
-            
+
             {/* Urgency */}
             <div className="form-group">
               <label htmlFor="urgency">Urgency <span className="required">*</span></label>
