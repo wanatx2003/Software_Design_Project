@@ -17,21 +17,27 @@
 
 .form-group {
   margin-bottom: 20px;
+  
 }
 
 
 .checkbox-option{
   display: flex;
-  align-items:flex-start;
-  justify-content: space-around;
-  margin-bottom: 0.5rem;
-
+  align-items: center;
+  
+  
+  
 }
 .checkbox-option label{
   
   width:120px;
 }
-
+.checkbox-option input{
+  display:flex;
+  align-items: flex-start;
+  max-width: 50px;
+  
+}
 
 input, select, textarea {
   width: 100%;
