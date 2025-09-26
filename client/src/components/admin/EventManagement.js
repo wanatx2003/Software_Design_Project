@@ -25,7 +25,6 @@ const URGENCY_OPTIONS = [
 
 const EventManagement = () => {
   const [events, setEvents] = useState([]);
-
   const [currentEvent, setCurrentEvent] = useState({
     _id: null,
     name: '',
@@ -319,8 +318,7 @@ const EventManagement = () => {
               <small>Hold Ctrl/Cmd to select multiple skills</small>
               {errors.requiredSkills && <span className="error-text">{errors.requiredSkills}</span>}
             </div>
-
-
+            
             {/* Urgency */}
             <div className="form-group">
               <label htmlFor="urgency">Urgency <span className="required">*</span></label>
