@@ -26,49 +26,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="services-section">
-        <div className="container">
-          <div className="section-header">
-            <h2>Volunteer Services</h2>
-          </div>
-          
-          <div className="services-grid">
-            <div className="service-card">
-              <div className="service-icon">
-                <span>🏥</span>
-              </div>
-              <h3>Healthcare & Medical</h3>
-              <p>Support healthcare initiatives and provide medical assistance to communities in need</p>
-            </div>
-
-            <div className="service-card">
-              <div className="service-icon">
-                <span>📚</span>
-              </div>
-              <h3>Education & Teaching</h3>
-              <p>Share knowledge and help educate the next generation through tutoring and educational programs</p>
-            </div>
-
-            <div className="service-card">
-              <div className="service-icon">
-                <span>🏛️</span>
-              </div>
-              <h3>Community Building</h3>
-              <p>Participate in community development projects and neighborhood improvement initiatives</p>
-            </div>
-
-            <div className="service-card">
-              <div className="service-icon">
-                <span>🎯</span>
-              </div>
-              <h3>Events & Workshops</h3>
-              <p>Join our community events and skill-building workshops to make connections and learn new skills</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
       <section className="features-section">
         <div className="container">
