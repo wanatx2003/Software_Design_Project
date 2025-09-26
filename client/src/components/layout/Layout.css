@@ -196,3 +196,8 @@
     margin-bottom: 0.5rem;
   }
 }
+
+/* notification bell support */
+.navbar { position: relative; z-index: 10; }
+.navbar-links { overflow: visible; } /* allow dropdown to overflow */
+.navbar-bell { position: relative; }  /* anchor for dropdown */
