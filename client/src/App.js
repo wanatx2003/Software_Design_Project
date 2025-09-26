@@ -6,6 +6,9 @@ import './App.css';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 
+// Home Component
+import Home from './components/home/Home';
+
 // User Components
 import UserProfile from './components/user/UserProfile';
 import Dashboard from './components/dashboard/Dashboard';
@@ -78,11 +81,11 @@ function App() {
       <div className="App">
         <Navbar isAuthenticated={isAuthenticated} user={user} logout={logout} />
         <NotificationSystem />
-        <div className="container">
+        <div className="main-content">
           <Routes>
-            {/* Home route - redirects based on role */}
+            {/* Home route - shows landing page for unauthenticated users, dashboard for authenticated */}
             <Route path="/" element={
-              !isAuthenticated ? <Navigate to="/login" /> : 
+              !isAuthenticated ? <Home /> : 
               user?.role === 'admin' ? <AdminDashboard user={user} /> :
               <Dashboard user={user} />
             } />

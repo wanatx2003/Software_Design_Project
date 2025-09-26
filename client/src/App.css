@@ -31,12 +31,42 @@ body {
   flex-direction: column;
 }
 
+.main-content {
+  flex: 1;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   width: 100%;
-  flex: 1;
+}
+
+/* Only apply container padding to authenticated pages */
+.App:has(.dashboard-container) .main-content,
+.App:has(.profile-container) .main-content,
+.App:has(.admin-container) .main-content,
+.App:has(.history-container) .main-content,
+.App:has(.auth-container) .main-content {
+  padding: 0;
+}
+
+.App:has(.dashboard-container) .container,
+.App:has(.profile-container) .container,
+.App:has(.admin-container) .container,
+.App:has(.history-container) .container,
+.App:has(.auth-container) .container {
+  padding: 20px;
+}
+
+/* Home page gets full width */
+.App:has(.home-container) .main-content {
+  padding: 0;
+}
+
+.App:has(.home-container) .container {
+  padding: 0;
+  max-width: none;
 }
 
 .loading {

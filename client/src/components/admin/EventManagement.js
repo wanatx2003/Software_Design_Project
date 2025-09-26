@@ -26,7 +26,6 @@ const URGENCY_OPTIONS = [
 
 const EventManagement = () => {
   const [events, setEvents] = useState([]);
-
   const [currentEvent, setCurrentEvent] = useState({
     _id: null,
     name: '',
