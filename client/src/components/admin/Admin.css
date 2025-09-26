@@ -177,3 +177,26 @@
 .existing-matches {
   margin-top: 30px;
 }
+
+/* Subtle highlight for events that match the selected volunteer */
+.match-row {
+  background-color: #eef6ff !important;
+}
+.match-row td {
+  border-top: 2px solid #b9d5ff !important;
+  border-bottom: 2px solid #b9d5ff !important;
+}
+
+/* Keep selection strong and accessible */
+.selected-row {
+  background-color: #d5f5e3 !important;
+  outline: 2px solid #8ab4f8;
+}
+
+/* Tighter table spacing for denser look */
+.admin-table th, .admin-table td {
+  padding: 8px 10px;
+}
+
+/* Badges spacing tweak */
+.skill-badge { margin: 2px 4px 2px 0; }

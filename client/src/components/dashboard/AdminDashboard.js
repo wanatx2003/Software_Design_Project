@@ -1,73 +1,111 @@
-import React, { useState, useEffect } from 'react';
+// AdminDashboard.js
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
-import { mockEventsApi, mockVolunteersApi, mockMatchesApi } from '../../utils/mockApi';
 
-const AdminDashboard = ({ user }) => {
+// If you keep these mock APIs, we can still call them when USE_MOCK=false
+import { mockEventsApi, mockVolunteersApi, mockMatchesApi  } from '../../utils/mockApi';
+// You also generated mockData; we’ll use it directly when USE_MOCK=true
+import { mockData } from '../../utils/mockData';
+
+
+// ✅ Use mocks by default; flip to false when real APIs are ready
+const USE_MOCK = true;
+
+// -------- helpers: normalize shapes so the UI can assume {_id, name, ...} --------
+const normEvent = (e) => ({
+  _id: e._id ?? e.id ?? String(Math.random()),
+  name: e.name ?? e.title ?? 'Untitled Event',
+  date: e.date ?? null,
+  urgency: e.urgency ?? 'low',
+  description: e.description ?? '',
+});
+const normMatch = (m) => ({
+  _id: m._id ?? m.id ?? String(Math.random()),
+  volunteerId: m.volunteerId,
+  eventId: m.eventId,
+  status: m.status ?? 'pending',
+});
+const normVolunteer = (v) => ({
+  _id: v._id ?? v.id ?? String(Math.random()),
+  fullName: v.fullName ?? v.name ?? 'Unnamed Volunteer',
+  email: v.email ?? '',
+});
+
+export default function AdminDashboard({ user }) {
   const [stats, setStats] = useState({
     totalEvents: 0,
     upcomingEvents: 0,
-    totalVolunteers: 0,
-    pendingMatches: 0
+    totalVolunteers: 0,   // 👈 drives “Registered Volunteers”
+    pendingMatches: 0,
   });
   const [recentEvents, setRecentEvents] = useState([]);
   const [pendingMatches, setPendingMatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
     try {
-      // Fetch events
-      const eventsData = await mockEventsApi.getAllEvents();
-      
-      // Fetch volunteers
-      const volunteersData = await mockVolunteersApi.getAllVolunteers();
-      
-      // Fetch matches
-      const matchesData = await mockMatchesApi.getAllMatches();
-      
-      // Calculate statistics
-      const now = new Date();
-      const upcoming = eventsData.filter(event => new Date(event.date) > now);
-      const pending = matchesData.filter(match => match.status === 'pending');
-      
+      let events = [];
+      let volunteers = [];
+      let matches = [];
+
+      if (USE_MOCK) {
+        // ---------- MOCK BRANCH ----------
+        events = (mockData.events || []).map(normEvent);
+        volunteers = (mockData.volunteers || []).map(normVolunteer);
+        matches = (mockData.matches || []).map(normMatch);
+      } else {
+        // ---------- REAL API BRANCH (or your mockApi functions that hit a service) ----------
+        const [eventsData, volunteersData, matchesData] = await Promise.all([
+          // adapt to whatever functions your mockApi exposes in “real” mode
+          mockEventsApi.getAllEvents?.() ?? mockEventsApi.list?.() ?? [],
+          mockVolunteersApi.getAllVolunteers?.() ?? mockVolunteersApi.list?.() ?? [],
+          mockMatchesApi.getAllMatches?.() ?? mockMatchesApi.list?.() ?? [],
+        ]);
+        events = (eventsData || []).map(normEvent);
+        volunteers = (volunteersData || []).map(normVolunteer);
+        matches = (matchesData || []).map(normMatch);
+      }
+
+      // ----- stats -----
+      const nowMidnight = new Date(); nowMidnight.setHours(0,0,0,0);
+      const upcoming = events
+        .filter(e => e.date && !isNaN(new Date(e.date)) && new Date(e.date) >= nowMidnight)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const pending = matches.filter(m => m.status === 'pending');
+
       setStats({
-        totalEvents: eventsData.length,
+        totalEvents: events.length,
         upcomingEvents: upcoming.length,
-        totalVolunteers: volunteersData.length,
-        pendingMatches: pending.length
+        totalVolunteers: volunteers.length,        // ✅ updates “Registered Volunteers”
+        pendingMatches: pending.length,
       });
-      
-      // Get recent events (upcoming and sorted by date)
-      const sortedEvents = [...upcoming].sort((a, b) => 
-        new Date(a.date) - new Date(b.date)
-      ).slice(0, 3);
-      setRecentEvents(sortedEvents);
-      
-      // Get pending matches
+
+      setRecentEvents(upcoming.slice(0, 3));
       setPendingMatches(pending);
-      
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
+      setStats({ totalEvents: 0, upcomingEvents: 0, totalVolunteers: 0, pendingMatches: 0 });
+      setRecentEvents([]);
+      setPendingMatches([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
-  }
+  useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
+
+  if (loading) return <div className="loading">Loading dashboard...</div>;
 
   return (
     <div className="admin-dashboard">
       <div className="admin-welcome">
-        <h2>Welcome, {user.firstName}!</h2>
+        <h2>Welcome, {user?.firstName || 'Admin'}!</h2>
         <p>Administrator Dashboard</p>
       </div>
-      
+
       <div className="admin-stats">
         <div className="stat-card">
           <div className="stat-value">{stats.totalEvents}</div>
@@ -86,7 +124,7 @@ const AdminDashboard = ({ user }) => {
           <div className="stat-label">Pending Matches</div>
         </div>
       </div>
-      
+
       <div className="admin-panels">
         <div className="admin-panel">
           <h3>Upcoming Events</h3>
@@ -102,15 +140,17 @@ const AdminDashboard = ({ user }) => {
                       {event.urgency.charAt(0).toUpperCase() + event.urgency.slice(1)}
                     </span>
                   </div>
-                  <p className="event-date">{new Date(event.date).toLocaleDateString()}</p>
-                  <p>{event.description.substring(0, 80)}...</p>
+                  <p className="event-date">
+                    {event.date ? new Date(event.date).toLocaleDateString() : '—'}
+                  </p>
+                  <p>{(event.description || '').slice(0, 80)}{(event.description || '').length > 80 ? '…' : ''}</p>
                 </div>
               ))}
               <Link to="/admin/events" className="admin-panel-link">Manage All Events →</Link>
             </div>
           )}
         </div>
-        
+
         <div className="admin-panel">
           <h3>Pending Volunteer Matches</h3>
           {pendingMatches.length === 0 ? (
@@ -129,7 +169,7 @@ const AdminDashboard = ({ user }) => {
           )}
         </div>
       </div>
-      
+
       <div className="admin-quick-actions">
         <h3>Quick Actions</h3>
         <div className="admin-button-group">
@@ -143,6 +183,4 @@ const AdminDashboard = ({ user }) => {
       </div>
     </div>
   );
-};
-
-export default AdminDashboard;
+}
