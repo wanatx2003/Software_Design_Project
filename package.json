@@ -8,10 +8,11 @@
     "server": "cd backend && npm start",
     "server:dev": "cd backend && npm run dev",
     "client": "cd client && npm start",
-    "install:all": "npm install && cd backend && npm install && cd ../client && npm install",
+    "install:all": "npm install && npm install react-select && cd backend && npm install && cd ../client && npm install",
     "test": "concurrently \"cd backend && npm test\" \"cd client && npm test\""
   },
   "dependencies": {
+    "all": "^0.0.0",
     "concurrently": "^8.2.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",

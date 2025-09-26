@@ -1,3 +1,4 @@
+// client/src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
@@ -19,12 +20,14 @@ import EventManagement from './components/admin/EventManagement';
 import VolunteerMatching from './components/admin/VolunteerMatching';
 
 // Common Components
-import NotificationSystem from './components/common/NotificationSystem';
+// Note: Do not render NotificationSystem here (no default export / provider handles toasts)
+// import NotificationSystem from './components/common/NotificationSystem';
+
 import VolunteerHistory from './components/volunteer/VolunteerHistory';
 import Navbar from './components/layout/Navbar';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 
-// Import mock API
+// Mock API
 import { mockAuthApi } from './utils/mockApi';
 
 function App() {
@@ -33,12 +36,10 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          // Use mock API instead of real fetch for now
           const data = await mockAuthApi.verify();
           if (data.user) {
             setIsAuthenticated(true);
@@ -48,15 +49,14 @@ function App() {
             setIsAuthenticated(false);
           }
         }
-        setLoading(false);
-      } catch (error) {
-        console.error('Auth error:', error);
+      } catch (err) {
+        console.error('Auth error:', err);
         localStorage.removeItem('token');
         setIsAuthenticated(false);
+      } finally {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 
@@ -80,62 +80,71 @@ function App() {
     <Router>
       <div className="App">
         <Navbar isAuthenticated={isAuthenticated} user={user} logout={logout} />
-        <NotificationSystem />
+
         <div className="main-content">
           <Routes>
-            {/* Home route - shows landing page for unauthenticated users, dashboard for authenticated */}
-            <Route path="/" element={
-              !isAuthenticated ? <Home /> : 
-              user?.role === 'admin' ? <AdminDashboard user={user} /> :
-              <Dashboard user={user} />
-            } />
-            
+            {/* Home route: landing for guests, dashboards for logged-in users */}
+            <Route
+              path="/"
+              element={
+                !isAuthenticated
+                  ? <Home />
+                  : user?.role === 'admin'
+                    ? <AdminDashboard user={user} />
+                    : <Dashboard user={user} />
+              }
+            />
+
             <Route path="/login" element={<Login login={login} isAuthenticated={isAuthenticated} />} />
             <Route path="/register" element={<Register login={login} isAuthenticated={isAuthenticated} />} />
-            
-            {/* Protected Routes */}
-            <Route 
-              path="/profile" 
+
+            <Route
+              path="/profile"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
                   <UserProfile user={user} />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/history" 
+
+            <Route
+              path="/history"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
                   <VolunteerHistory user={user} />
                 </ProtectedRoute>
-              } 
+              }
             />
-            
-            {/* Admin Routes */}
-            <Route 
-              path="/admin/dashboard" 
+
+            <Route
+              path="/admin/dashboard"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={user?.role === 'admin'}>
                   <AdminDashboard user={user} />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/admin/events" 
+
+            <Route
+              path="/admin/events"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={user?.role === 'admin'}>
                   <EventManagement />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/admin/matching" 
+
+            <Route
+              path="/admin/matching"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isAdmin={user?.role === 'admin'}>
                   <VolunteerMatching />
                 </ProtectedRoute>
-              } 
+              }
             />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </div>
