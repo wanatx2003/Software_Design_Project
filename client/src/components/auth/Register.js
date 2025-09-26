@@ -83,31 +83,6 @@ const Register = ({ login, isAuthenticated }) => {
         {errors.general && <div className="error-message">{errors.general}</div>}
         
         <form onSubmit={onSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="firstName">First Name</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={firstName}
-              onChange={onChange}
-              className={errors.firstName ? 'error' : ''}
-            />
-            {errors.firstName && <span className="error-text">{errors.firstName}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={lastName}
-              onChange={onChange}
-              className={errors.lastName ? 'error' : ''}
-            />
-            {errors.lastName && <span className="error-text">{errors.lastName}</span>}
-          </div>
           
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
