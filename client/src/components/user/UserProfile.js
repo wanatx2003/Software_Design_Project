@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import './UserProfile.css';
+import Select from "react-select"
 
 const STATE_OPTIONS = [
   { value: 'AL', label: 'Alabama' },
@@ -72,6 +73,11 @@ const SKILL_OPTIONS = [
 
 const UserProfile = ({ user }) => {
   const navigate = useNavigate();
+  const[selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleNewChange = (selectedOptions) => {
+    setSelectedOptions(selectedOptions);
+  };
   const [profile, setProfile] = useState({
     fullName: '',
     address1: '',
@@ -89,6 +95,8 @@ const UserProfile = ({ user }) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   
+
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -115,7 +123,7 @@ const UserProfile = ({ user }) => {
     
     fetchProfile();
   }, []);
-
+  
   const handleChange = e => {
     const { name, value } = e.target;
     setProfile({ ...profile, [name]: value });
@@ -126,15 +134,6 @@ const UserProfile = ({ user }) => {
     }
   };
   
-  const handleSkillChange = e => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setProfile({ ...profile, skills: selectedOptions });
-    
-    // Clear error when field is edited
-    if (errors.skills) {
-      setErrors({ ...errors, skills: undefined });
-    }
-  };
   
   
   const handleDateChange = dates => {
@@ -342,23 +341,14 @@ const UserProfile = ({ user }) => {
         </div>
         
         {/* Skills */}
-
         <div className="form-group">
-          <label htmlFor="skills">Skills <span className="required">*</span></label>
-          <select
-            id="skills"
-            name="skills"
-            multiple
-            value={profile.skills}
-            onChange={handleSkillChange}
-            className={errors.skills ? 'error' : ''}
-          >
-            {SKILL_OPTIONS.map(skill => (
-              <option key={skill.value} value={skill.value}>{skill.label}</option>
-            ))}
-          </select>
-          <small>Hold Ctrl/Cmd to select multiple skills</small>
-          {errors.skills && <span className="error-text">{errors.skills}</span>}
+           <label htmlFor="Skills">Skills<span className="required">*</span></label>
+          <Select
+           options={SKILL_OPTIONS}
+           value={selectedOptions}
+           onChange={handleNewChange}
+           isMulti={true}
+           />
         </div>
         
         {/* Preferences */}
