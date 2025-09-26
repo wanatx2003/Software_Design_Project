@@ -20,14 +20,14 @@ import EventManagement from './components/admin/EventManagement';
 import VolunteerMatching from './components/admin/VolunteerMatching';
 
 // Common Components
-// ❌ remove this — there is no default export and you don't need to render it
+// Note: Do not render NotificationSystem here (no default export / provider handles toasts)
 // import NotificationSystem from './components/common/NotificationSystem';
 
 import VolunteerHistory from './components/volunteer/VolunteerHistory';
 import Navbar from './components/layout/Navbar';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 
-// Import mock API
+// Mock API
 import { mockAuthApi } from './utils/mockApi';
 
 function App() {
@@ -49,11 +49,11 @@ function App() {
             setIsAuthenticated(false);
           }
         }
-        setLoading(false);
-      } catch (error) {
-        console.error('Auth error:', error);
+      } catch (err) {
+        console.error('Auth error:', err);
         localStorage.removeItem('token');
         setIsAuthenticated(false);
+      } finally {
         setLoading(false);
       }
     };
@@ -81,21 +81,17 @@ function App() {
       <div className="App">
         <Navbar isAuthenticated={isAuthenticated} user={user} logout={logout} />
 
-        {/* ❌ remove this; the provider renders the toast stack */}
-        {/* <NotificationSystem /> */}
-
         <div className="main-content">
           <Routes>
+            {/* Home route: landing for guests, dashboards for logged-in users */}
             <Route
               path="/"
               element={
-                !isAuthenticated ? (
-                  <Navigate to="/login" />
-                ) : user?.role === 'admin' ? (
-                  <AdminDashboard user={user} />
-                ) : (
-                  <Dashboard user={user} />
-                )
+                !isAuthenticated
+                  ? <Home />
+                  : user?.role === 'admin'
+                    ? <AdminDashboard user={user} />
+                    : <Dashboard user={user} />
               }
             />
 
@@ -110,6 +106,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/history"
               element={
@@ -127,6 +124,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/admin/events"
               element={
@@ -135,6 +133,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/admin/matching"
               element={
@@ -143,6 +142,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </div>
