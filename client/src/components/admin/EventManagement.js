@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import './Admin.css';
+import Select from "react-select"
 
 const SKILL_OPTIONS = [
   { value: 'medical', label: 'Medical' },
@@ -35,6 +36,11 @@ const EventManagement = () => {
     urgency: 'medium',
     date: new Date()
   });
+  const[selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleNewChange = (selectedOptions) => {
+    setSelectedOptions(selectedOptions);
+  };
   
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
@@ -94,15 +100,6 @@ const EventManagement = () => {
     }
   };
   
-  const handleSkillChange = e => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setCurrentEvent({ ...currentEvent, requiredSkills: selectedOptions });
-    
-    // Clear error when field is edited
-    if (errors.requiredSkills) {
-      setErrors({ ...errors, requiredSkills: undefined });
-    }
-  };
   
   const handleDateChange = date => {
     setCurrentEvent({ ...currentEvent, date });
@@ -303,23 +300,14 @@ const EventManagement = () => {
             
             {/* Required Skills */}
             <div className="form-group">
-              <label htmlFor="requiredSkills">Required Skills <span className="required">*</span></label>
-              <select
-                id="requiredSkills"
-                name="requiredSkills"
-                multiple
-                value={currentEvent.requiredSkills}
-                onChange={handleSkillChange}
-                className={errors.requiredSkills ? 'error' : ''}
-              >
-                {SKILL_OPTIONS.map(skill => (
-                  <option key={skill.value} value={skill.value}>{skill.label}</option>
-                ))}
-              </select>
-              <small>Hold Ctrl/Cmd to select multiple skills</small>
-              {errors.requiredSkills && <span className="error-text">{errors.requiredSkills}</span>}
+              <label htmlFor="requiredSkills">Required Skills<span className="required">*</span></label>
+              <Select
+              options={SKILL_OPTIONS}
+              value={selectedOptions}
+              onChange={handleNewChange}
+              isMulti={true}
+              />
             </div>
-
 
             {/* Urgency */}
             <div className="form-group">
