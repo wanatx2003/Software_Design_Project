@@ -1,111 +1,127 @@
 import React, { useState, useEffect } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { mockAuthApi } from '../../utils/mockApi';
 
+import user_icon from '../Assets/account.png'
+import email_icon from '../Assets/email-outline.png'
+import password_icon from '../Assets/lock.png'
+
+
 const Login = ({ login, isAuthenticated }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, navigate]);
 
-  const { email, password } = formData;
+    const [action,setAction] = useState("Login");
 
-  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const validateForm = () => {
-    const errors = {};
-    if (!email) errors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid';
-    
-    if (!password) errors.password = 'Password is required';
-    
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+    const [formData, setFormData] = useState({
+      email: '',
+      password: ''
+    });
 
-  const onSubmit = async e => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    
-    try {
-      // Use mock API instead of real fetch
-      const data = await mockAuthApi.login(formData);
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigate('/');
+      }
+    }, [isAuthenticated, navigate]);
+    const { email, password } = formData;
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const validateForm = () => {
+      const errors = {};
+      if (!email) errors.email = 'Email is required';
+      else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Email is invalid';
       
-      login(data.token, data.user);
-      navigate('/');
+      if (!password) errors.password = 'Password is required';
       
-    } catch (err) {
-      console.error('Login error:', err);
-      setErrors({ general: err.message || 'Login failed. Please try again.' });
-      setLoading(false);
-    }
-  };
+      setErrors(errors);
+      return Object.keys(errors).length === 0;
+    };
 
-  return (
-    <div className="auth-container">
-      <div className="auth-form-container">
-        <h2>Log In</h2>
-        {errors.general && <div className="error-message">{errors.general}</div>}
+    const onSubmit = async e => {
+      e.preventDefault();
+      
+      if (!validateForm()) return;
+      
+      setLoading(true);
+      
+      try {
+        // Use mock API instead of real fetch
+        console.log("sdsadas")
+        const data = await mockAuthApi.login(formData);
         
-        {/* Add demo information */}
-        <div className="demo-info">
-          <p>Demo Login:</p>
-          <p>Admin: admin@example.com / password</p>
-          <p>Volunteer: volunteer@example.com / password</p>
+        login(data.token, data.user);
+        navigate('/');
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        setErrors({ general: err.message || 'Login failed. Please try again.' });
+        setLoading(false);
+      }
+    };
+    
+    
+
+    return (
+        <div>
+            <div className="container">
+                <div className="header">
+                    <div className="text">{action}</div>
+                    <div className="underline"></div>
+                </div>
+                <div className='demo'>
+                  <div className='demo-text'>Demo Login:</div>
+                  <div>Admin: admin@example.com / password</div>
+                  <div>Volunteer: volunteer@example.com / password</div>
+                </div>
+
+                <form onSubmit={onSubmit} className="inputs">
+                    <div className="inputs">
+
+                        <div className="input">
+                            <img src= {email_icon} alt="" />
+                            <input 
+                                type="email" 
+                                placeholder="Email"
+                                name="email"
+                                required
+                                value={email}
+                                onChange={onChange}
+                                className={errors.email ? 'error' : ''}
+                            />
+                        </div>
+                        <div className="input">
+                            <img src= {password_icon} alt="" />
+                            <input 
+                                type="password" 
+                                placeholder="Password"
+                                name="password"
+                                required
+                                minLength={4}
+                                value={password}
+                                onChange={onChange}
+                                className={errors.password ? 'error' : ''}
+                            />
+                          {errors.password && <span className="error-text">{errors.password}</span>}
+                        </div>
+                    </div>
+
+                    {action==="Sign Up"?null:<div className="forgot-password">Lost Password? <span>Click Here!</span></div>}
+
+                    <div className="submit-container">
+                        
+                        <button type="submit" className="submit" disabled={loading}>
+                          {loading ? 'Logging in...' : 'Login'}
+                        </button>
+                    </div>                    
+                </form>
+            </div>
         </div>
-        
-        <form onSubmit={onSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={onChange}
-              className={errors.email ? 'error' : ''}
-            />
-            {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={onChange}
-              className={errors.password ? 'error' : ''}
-            />
-            {errors.password && <span className="error-text">{errors.password}</span>}
-          </div>
-          
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        
-        <div className="auth-links">
-          <p>Don't have an account? <Link to="/register">Register</Link></p>
-        </div>
-      </div>
-    </div>
-  );
-};
+    )
+}
 
 export default Login;
