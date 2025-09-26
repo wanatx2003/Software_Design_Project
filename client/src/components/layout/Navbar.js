@@ -59,7 +59,7 @@ const Navbar = ({ isAuthenticated, user, logout }) => {
 
             {/* 🔔 Notification bell — EXACTLY here */}
             <li className="navbar-bell">
-              <NotificationBell />
+              {isAuthenticated && <NotificationBell />}
             </li>
 
             {/* User info and logout */}

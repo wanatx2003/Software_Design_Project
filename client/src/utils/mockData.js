@@ -128,24 +128,146 @@ export const mockData = {
     { id: 'v14', name: 'Sophia Garcia',   skills: ['language','organizing','medical'],  availability: ['2025-10-01','2025-10-06'], maxDistanceKm: 20, homeZip: '77017' },
   ],
 
+  // Updated events with fields your UI expects: name, location, urgency, description
   events: [
-    { id: 'e1',  title: 'Health Camp – Midtown',     date: '2025-10-01', locationZip: '77003', requiredSkills: ['medical','organizing'], capacity: 5, assignedVolunteerIds: ['v1'] },
-    { id: 'e2',  title: 'Community Tutoring',        date: '2025-10-02', locationZip: '77002', requiredSkills: ['teaching','language'], capacity: 3, assignedVolunteerIds: [] },
-    { id: 'e3',  title: 'Food Drive Prep',           date: '2025-10-01', locationZip: '77008', requiredSkills: ['cooking','organizing'], capacity: 4, assignedVolunteerIds: ['v6'] },
-    { id: 'e4',  title: 'Neighborhood Repairs',      date: '2025-10-03', locationZip: '77006', requiredSkills: ['construction','driving'], capacity: 6, assignedVolunteerIds: ['v3'] },
-    { id: 'e5',  title: 'Career Tech Workshop',      date: '2025-10-03', locationZip: '77012', requiredSkills: ['tech','teaching'], capacity: 4, assignedVolunteerIds: [] },
-    { id: 'e6',  title: 'Mental Health Booth',       date: '2025-10-06', locationZip: '77007', requiredSkills: ['counseling','organizing'], capacity: 3, assignedVolunteerIds: [] },
-    { id: 'e7',  title: 'Bilingual Help Desk',       date: '2025-10-02', locationZip: '77010', requiredSkills: ['language','organizing'], capacity: 5, assignedVolunteerIds: [] },
-    { id: 'e8',  title: 'Fundraising Gala Setup',    date: '2025-10-04', locationZip: '77015', requiredSkills: ['fundraising','organizing'], capacity: 8, assignedVolunteerIds: ['v12','v8'] },
-    { id: 'e9',  title: 'Mobile Clinic – Eastside',  date: '2025-10-05', locationZip: '77013', requiredSkills: ['medical','driving'], capacity: 5, assignedVolunteerIds: [] },
-    { id: 'e10', title: 'Community Hack Night',      date: '2025-10-05', locationZip: '77011', requiredSkills: ['tech','organizing'], capacity: 10, assignedVolunteerIds: ['v9'] },
+    {
+      id: 'e1',
+      title: 'Health Camp – Midtown',
+      name: 'Health Camp – Midtown',
+      date: '2025-10-01',
+      locationZip: '77003',
+      location: 'Midtown Clinic, 77003',
+      urgency: 'high',
+      description: 'Pop-up health screening and basic care services.',
+      requiredSkills: ['medical','organizing'],
+      capacity: 5,
+      assignedVolunteerIds: ['v1']
+    },
+    {
+      id: 'e2',
+      title: 'Community Tutoring',
+      name: 'Community Tutoring',
+      date: '2025-10-02',
+      locationZip: '77002',
+      location: 'Downtown Library, 77002',
+      urgency: 'medium',
+      description: 'After-school tutoring for K–12 students.',
+      requiredSkills: ['teaching','language'],
+      capacity: 3,
+      assignedVolunteerIds: []
+    },
+    {
+      id: 'e3',
+      title: 'Food Drive Prep',
+      name: 'Food Drive Prep',
+      date: '2025-10-01',
+      locationZip: '77008',
+      location: 'Warehouse 5, 77008',
+      urgency: 'low',
+      description: 'Sort and package donations for weekend distribution.',
+      requiredSkills: ['cooking','organizing'],
+      capacity: 4,
+      assignedVolunteerIds: ['v6']
+    },
+    {
+      id: 'e4',
+      title: 'Neighborhood Repairs',
+      name: 'Neighborhood Repairs',
+      date: '2025-10-03',
+      locationZip: '77006',
+      location: 'Montrose Block A, 77006',
+      urgency: 'medium',
+      description: 'Light repairs and accessibility improvements for seniors.',
+      requiredSkills: ['construction','driving'],
+      capacity: 6,
+      assignedVolunteerIds: ['v3']
+    },
+    {
+      id: 'e5',
+      title: 'Career Tech Workshop',
+      name: 'Career Tech Workshop',
+      date: '2025-10-03',
+      locationZip: '77012',
+      location: 'Community Center East, 77012',
+      urgency: 'low',
+      description: 'Intro to coding and job readiness in tech.',
+      requiredSkills: ['tech','teaching'],
+      capacity: 4,
+      assignedVolunteerIds: []
+    },
+    {
+      id: 'e6',
+      title: 'Mental Health Booth',
+      name: 'Mental Health Booth',
+      date: '2025-10-06',
+      locationZip: '77007',
+      location: 'Bayou Park, 77007',
+      urgency: 'high',
+      description: 'Resource booth with counselors and support groups info.',
+      requiredSkills: ['counseling','organizing'],
+      capacity: 3,
+      assignedVolunteerIds: []
+    },
+    {
+      id: 'e7',
+      title: 'Bilingual Help Desk',
+      name: 'Bilingual Help Desk',
+      date: '2025-10-02',
+      locationZip: '77010',
+      location: 'Civic Hall, 77010',
+      urgency: 'medium',
+      description: 'Language support for forms and city services.',
+      requiredSkills: ['language','organizing'],
+      capacity: 5,
+      assignedVolunteerIds: []
+    },
+    {
+      id: 'e8',
+      title: 'Fundraising Gala Setup',
+      name: 'Fundraising Gala Setup',
+      date: '2025-10-04',
+      locationZip: '77015',
+      location: 'Grand Ballroom, 77015',
+      urgency: 'critical',
+      description: 'Set up and logistics for the annual fundraiser.',
+      requiredSkills: ['fundraising','organizing'],
+      capacity: 8,
+      assignedVolunteerIds: ['v12','v8']
+    },
+    {
+      id: 'e9',
+      title: 'Mobile Clinic – Eastside',
+      name: 'Mobile Clinic – Eastside',
+      date: '2025-10-05',
+      locationZip: '77013',
+      location: 'Eastside Market Lot, 77013',
+      urgency: 'high',
+      description: 'Mobile clinic providing basic care and vaccinations.',
+      requiredSkills: ['medical','driving'],
+      capacity: 5,
+      assignedVolunteerIds: []
+    },
+    {
+      id: 'e10',
+      title: 'Community Hack Night',
+      name: 'Community Hack Night',
+      date: '2025-10-05',
+      locationZip: '77011',
+      location: 'Innovation Hub, 77011',
+      urgency: 'low',
+      description: 'Build tools and dashboards for local orgs.',
+      requiredSkills: ['tech','organizing'],
+      capacity: 10,
+      assignedVolunteerIds: ['v9']
+    },
   ],
 
-  // Optional seed if you add a mock matches API later
+  // optional: seed matches if you want the dashboard’s "Pending Matches" to show something
   matches: [
     // { id: 'm1', volunteerId: 'v1', eventId: 'e1', status: 'pending' },
   ],
 };
+
 
 export const mockVolunteerApi = {
   async list() {

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 import './Admin.css';
-import Select from "react-select"
+import Select from 'react-select';
+
+// ✅ import your mock data
+import { mockData } from '../../utils/mockData';
+
+const USE_MOCK = true; // flip to false to use /api/events
 
 const SKILL_OPTIONS = [
   { value: 'medical', label: 'Medical' },
@@ -35,41 +40,49 @@ const EventManagement = () => {
     urgency: 'medium',
     date: new Date()
   });
-  const[selectedOptions, setSelectedOptions] = useState([]);
-
-  const handleNewChange = (selectedOptions) => {
-    setSelectedOptions(selectedOptions);
-  };
-  
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  
-  // Fetch all events on component mount
+
   useEffect(() => {
     fetchEvents();
   }, []);
 
+  const mapMockEventToUi = (e) => ({
+    _id: e.id,                               // normalize
+    name: e.name ?? e.title ?? 'Untitled',
+    description: e.description ?? '',
+    location: e.location ?? e.locationZip ?? '',
+    requiredSkills: e.requiredSkills ?? [],
+    urgency: e.urgency ?? 'medium',
+    date: e.date ? new Date(e.date) : new Date()
+  });
+
   const fetchEvents = async () => {
     setLoading(true);
     try {
+      if (USE_MOCK) {
+        // 🔹 events list comes from mockData here
+        const mapped = (mockData.events || []).map(mapMockEventToUi);
+        setEvents(mapped);
+        return;
+      }
+
+      // real API path
       const token = localStorage.getItem('token');
       const response = await fetch('/api/events', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data);
-      } else {
-        console.error('Error fetching events');
-      }
+      if (!response.ok) throw new Error('Error fetching events');
+      const data = await response.json();
+      // assume backend already returns UI shape
+      setEvents(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching events:', err);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -85,143 +98,132 @@ const EventManagement = () => {
       urgency: 'medium',
       date: new Date()
     });
+    setSelectedOptions([]);
     setErrors({});
     setIsEditing(false);
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setCurrentEvent({ ...currentEvent, [name]: value });
-    
-    // Clear error when field is edited
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: undefined });
-    }
+    setCurrentEvent((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
-  
-  
-  const handleDateChange = date => {
-    setCurrentEvent({ ...currentEvent, date });
-    
-    // Clear error when field is edited
-    if (errors.date) {
-      setErrors({ ...errors, date: undefined });
-    }
+
+  const handleDateChange = (date) => {
+    setCurrentEvent((prev) => ({ ...prev, date }));
+    if (errors.date) setErrors((prev) => ({ ...prev, date: undefined }));
+  };
+
+  const handleSkillsChange = (opts) => {
+    setSelectedOptions(opts || []);
+    setCurrentEvent((prev) => ({
+      ...prev,
+      requiredSkills: (opts || []).map((o) => o.value)
+    }));
+    if (errors.requiredSkills) setErrors((prev) => ({ ...prev, requiredSkills: undefined }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Event Name validation
-    if (!currentEvent.name) {
-      newErrors.name = 'Event name is required';
-    } else if (currentEvent.name.length > 100) {
-      newErrors.name = 'Event name must be 100 characters or less';
-    }
-    
-    // Description validation
-    if (!currentEvent.description) {
-      newErrors.description = 'Event description is required';
-    }
-    
-    // Location validation
-    if (!currentEvent.location) {
-      newErrors.location = 'Location is required';
-    }
-    
-    // Required Skills validation
-    if (!currentEvent.requiredSkills || currentEvent.requiredSkills.length === 0) {
-      newErrors.requiredSkills = 'Please select at least one required skill';
-    }
-    
-    // Urgency validation
-    if (!currentEvent.urgency) {
-      newErrors.urgency = 'Please select urgency level';
-    }
-    
-    // Date validation
-    if (!currentEvent.date) {
-      newErrors.date = 'Event date is required';
-    }
-    
+    if (!currentEvent.name) newErrors.name = 'Event name is required';
+    if (!currentEvent.description) newErrors.description = 'Event description is required';
+    if (!currentEvent.location) newErrors.location = 'Location is required';
+    if (!currentEvent.requiredSkills?.length) newErrors.requiredSkills = 'Select at least one skill';
+    if (!currentEvent.urgency) newErrors.urgency = 'Select urgency';
+    if (!currentEvent.date) newErrors.date = 'Event date is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setSaveLoading(true);
-    
+
     try {
+      if (USE_MOCK) {
+        // in-memory create/update
+        if (isEditing) {
+          setEvents((prev) =>
+            prev.map((ev) => (ev._id === currentEvent._id ? { ...currentEvent } : ev))
+          );
+        } else {
+          const newEvent = {
+            ...currentEvent,
+            _id: `mock-${Date.now()}`
+          };
+          setEvents((prev) => [newEvent, ...prev]);
+        }
+        resetForm();
+        setShowForm(false);
+        return;
+      }
+
+      // real API
       const token = localStorage.getItem('token');
-      const url = isEditing 
-        ? `/api/events/${currentEvent._id}`
-        : '/api/events';
-      
+      const url = isEditing ? `/api/events/${currentEvent._id}` : '/api/events';
       const method = isEditing ? 'PUT' : 'POST';
-      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(currentEvent)
       });
-      
-      if (response.ok) {
-        await fetchEvents();
-        resetForm();
-        setShowForm(false);
-      } else {
-        const error = await response.json();
-        setErrors({ 
-          general: error.message || `Error ${isEditing ? 'updating' : 'creating'} event. Please try again.` 
-        });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || 'Save failed');
       }
+      await fetchEvents();
+      resetForm();
+      setShowForm(false);
     } catch (err) {
-      console.error(`Error ${isEditing ? 'updating' : 'creating'} event:`, err);
-      setErrors({ general: `Error ${isEditing ? 'updating' : 'creating'} event. Please try again.` });
+      console.error(`Save error:`, err);
+      setErrors({ general: err.message || 'Error saving event. Please try again.' });
     } finally {
       setSaveLoading(false);
     }
   };
 
-  const handleEdit = event => {
+  const handleEdit = (event) => {
     setCurrentEvent({
       ...event,
       date: new Date(event.date)
     });
+    // hydrate select from existing skills
+    setSelectedOptions(
+      (event.requiredSkills || [])
+        .map((v) => SKILL_OPTIONS.find((o) => o.value === v))
+        .filter(Boolean)
+    );
     setIsEditing(true);
     setShowForm(true);
   };
 
   const handleDelete = async (eventId) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) {
-      return;
-    }
-    
+    if (!window.confirm('Are you sure you want to delete this event?')) return;
+
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/events/${eventId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        await fetchEvents();
-        // If deleting the event currently being edited, reset the form
+      if (USE_MOCK) {
+        setEvents((prev) => prev.filter((e) => e._id !== eventId));
         if (currentEvent._id === eventId) {
           resetForm();
           setShowForm(false);
         }
-      } else {
-        console.error('Error deleting event');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Delete failed');
+      await fetchEvents();
+      if (currentEvent._id === eventId) {
+        resetForm();
+        setShowForm(false);
       }
     } catch (err) {
       console.error('Error deleting event:', err);
@@ -235,28 +237,29 @@ const EventManagement = () => {
   return (
     <div className="admin-container">
       <h2>Event Management</h2>
-      
+
       <div className="admin-actions">
-        <button 
+        <button
           onClick={() => {
             resetForm();
             setShowForm(!showForm);
-          }} 
+          }}
           className="action-button"
         >
           {showForm ? 'Hide Form' : 'Create New Event'}
         </button>
       </div>
-      
+
       {showForm && (
         <div className="event-form-container">
           <h3>{isEditing ? 'Edit Event' : 'Create New Event'}</h3>
           {errors.general && <div className="error-message">{errors.general}</div>}
-          
+
           <form onSubmit={handleSubmit} className="event-form">
-            {/* Event Name */}
             <div className="form-group">
-              <label htmlFor="name">Event Name <span className="required">*</span></label>
+              <label htmlFor="name">
+                Event Name <span className="required">*</span>
+              </label>
               <input
                 type="text"
                 id="name"
@@ -268,10 +271,11 @@ const EventManagement = () => {
               />
               {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
-            
-            {/* Event Description */}
+
             <div className="form-group">
-              <label htmlFor="description">Description <span className="required">*</span></label>
+              <label htmlFor="description">
+                Description <span className="required">*</span>
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -279,13 +283,14 @@ const EventManagement = () => {
                 onChange={handleChange}
                 rows="4"
                 className={errors.description ? 'error' : ''}
-              ></textarea>
+              />
               {errors.description && <span className="error-text">{errors.description}</span>}
             </div>
-            
-            {/* Location */}
+
             <div className="form-group">
-              <label htmlFor="location">Location <span className="required">*</span></label>
+              <label htmlFor="location">
+                Location <span className="required">*</span>
+              </label>
               <textarea
                 id="location"
                 name="location"
@@ -293,24 +298,29 @@ const EventManagement = () => {
                 onChange={handleChange}
                 rows="2"
                 className={errors.location ? 'error' : ''}
-              ></textarea>
+              />
               {errors.location && <span className="error-text">{errors.location}</span>}
             </div>
-            
-            {/* Required Skills */}
+
             <div className="form-group">
-              <label htmlFor="requiredSkills">Required Skills<span className="required">*</span></label>
+              <label htmlFor="requiredSkills">
+                Required Skills <span className="required">*</span>
+              </label>
               <Select
-              options={SKILL_OPTIONS}
-              value={selectedOptions}
-              onChange={handleNewChange}
-              isMulti={true}
+                options={SKILL_OPTIONS}
+                value={selectedOptions}
+                onChange={handleSkillsChange}
+                isMulti
               />
+              {errors.requiredSkills && (
+                <span className="error-text">{errors.requiredSkills}</span>
+              )}
             </div>
 
-            {/* Urgency */}
             <div className="form-group">
-              <label htmlFor="urgency">Urgency <span className="required">*</span></label>
+              <label htmlFor="urgency">
+                Urgency <span className="required">*</span>
+              </label>
               <select
                 id="urgency"
                 name="urgency"
@@ -318,16 +328,19 @@ const EventManagement = () => {
                 onChange={handleChange}
                 className={errors.urgency ? 'error' : ''}
               >
-                {URGENCY_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                {URGENCY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
               {errors.urgency && <span className="error-text">{errors.urgency}</span>}
             </div>
-            
-            {/* Event Date */}
+
             <div className="form-group">
-              <label htmlFor="date">Event Date <span className="required">*</span></label>
+              <label htmlFor="date">
+                Event Date <span className="required">*</span>
+              </label>
               <DatePicker
                 selected={currentEvent.date}
                 onChange={handleDateChange}
@@ -336,72 +349,91 @@ const EventManagement = () => {
               />
               {errors.date && <span className="error-text">{errors.date}</span>}
             </div>
-            
+
             <div className="form-actions">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => {
                   resetForm();
                   setShowForm(false);
-                }} 
+                }}
                 className="cancel-button"
               >
                 Cancel
               </button>
               <button type="submit" className="submit-button" disabled={saveLoading}>
-                {saveLoading ? 'Saving...' : (isEditing ? 'Update Event' : 'Create Event')}
+                {saveLoading ? 'Saving...' : isEditing ? 'Update Event' : 'Create Event'}
               </button>
             </div>
           </form>
         </div>
       )}
-      
-      <div className="events-list">
-        <h3>All Events</h3>
-        {events.length === 0 ? (
-          <p>No events found.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Event Name</th>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Urgency</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map(event => (
-                <tr key={event._id}>
-                  <td>{event.name}</td>
-                  <td>{new Date(event.date).toLocaleDateString()}</td>
-                  <td>{event.location}</td>
-                  <td>
-                    <span className={`urgency-badge ${event.urgency}`}>
-                      {event.urgency.charAt(0).toUpperCase() + event.urgency.slice(1)}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      onClick={() => handleEdit(event)} 
-                      className="edit-button"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(event._id)} 
-                      className="delete-button"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+
+<div className="events-list">
+  <h3>All Events</h3>
+  {events.length === 0 ? (
+    <p>No events found.</p>
+  ) : (
+    <table className="admin-table">
+      <thead>
+        <tr>
+          <th>Event Name</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Urgency</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {events.map((raw) => {
+          // normalize to support mockData (id/title/locationZip) or API (_id/name/location)
+          const id = raw._id ?? raw.id;
+          const name = raw.name ?? raw.title ?? 'Untitled';
+          const dateObj = raw.date ? new Date(raw.date) : null;
+          const location = raw.location ?? raw.locationZip ?? '—';
+          const urgency = raw.urgency ?? 'low';
+
+          // ensure Edit receives the normalized fields your form expects
+          const normalizedForEdit = {
+            ...raw,
+            _id: id,
+            name,
+            location,
+            urgency,
+            date: dateObj || new Date()
+          };
+
+          return (
+            <tr key={id}>
+              <td>{name}</td>
+              <td>{dateObj ? dateObj.toLocaleDateString() : '—'}</td>
+              <td>{location}</td>
+              <td>
+                <span className={`urgency-badge ${urgency}`}>
+                  {urgency.charAt(0).toUpperCase() + urgency.slice(1)}
+                </span>
+              </td>
+              <td>
+                <button
+                  onClick={() => handleEdit(normalizedForEdit)}
+                  className="edit-button"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(id)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  )}
+</div>
     </div>
   );
 };
