@@ -64,7 +64,7 @@ export const NotificationProvider = ({ children }) => {
     const initialNotifications = [
       {
         id: 1,
-        message: "You have been matched to 'Community Health Fair' event",
+        message: "You signed up for the 'Community Health Fair' event",
         type: 'assignment',
         eventName: 'Community Health Fair',
         eventId: '1',
@@ -73,7 +73,7 @@ export const NotificationProvider = ({ children }) => {
       },
       {
         id: 2,
-        message: "Event 'Food Drive' has been updated - new location",
+        message: "The 'Food Drive' location has been changed",
         type: 'update',
         eventName: 'Food Drive',
         eventId: '2',
@@ -82,7 +82,7 @@ export const NotificationProvider = ({ children }) => {
       },
       {
         id: 3,
-        message: "Reminder: 'Technology Workshop' is happening tomorrow",
+        message: "Don't forget: 'Technology Workshop' starts tomorrow",
         type: 'reminder',
         eventName: 'Technology Workshop',
         eventId: '3',

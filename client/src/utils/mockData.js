@@ -1,5 +1,64 @@
 // Mock data for front-end development before backend integration
 
+// Sample events
+export const events = [
+  {
+    _id: "1",
+    name: "Community Health Fair",
+    description: "Free health checkups and wellness information for everyone in the community",
+    location: "Community Center, 789 Main St, Centertown, CA 12345",
+    requiredSkills: ["medical", "organizing"],
+    urgency: "medium",
+    date: new Date(2026, 11, 15) // December 15, 2026
+  },
+  {
+    _id: "2",
+    name: "Food Drive",
+    description: "Help collect and sort food donations for families in need",
+    location: "Food Bank, 101 Charity Ln, Givingville, NY 67890",
+    requiredSkills: ["cooking", "driving", "organizing"],
+    urgency: "high",
+    date: new Date(2026, 11, 20) // December 20, 2026
+  },
+  {
+    _id: "3",
+    name: "Technology Workshop",
+    description: "Teach older adults how to use computers and smartphones",
+    location: "Senior Center, 202 Elder Rd, Ageville, CA 54321",
+    requiredSkills: ["tech", "teaching"],
+    urgency: "low",
+    date: new Date(2026, 11, 25) // December 25, 2026
+  }
+];
+
+// Sample volunteer-event matches
+export const matches = [
+  {
+    _id: "1",
+    volunteerId: "2",
+    eventId: "1",
+    status: "confirmed"
+  },
+  {
+    _id: "2",
+    volunteerId: "2",
+    eventId: "2",
+    status: "pending"
+  }
+];
+
+// Sample volunteer history
+export const history = [
+  {
+    _id: "1",
+    volunteerId: "2",
+    eventId: "1",
+    status: "completed",
+    hours: 4,
+    feedback: "It was a great experience helping at the health fair!"
+  }
+];
+
 // Sample users with different roles
 export const users = [
   {
@@ -40,69 +99,10 @@ export const users = [
       skills: ["medical", "cooking", "driving"],
       preferences: "I enjoy helping with medical services",
       availability: [
-        new Date(2023, 9, 10), 
-        new Date(2023, 9, 17), 
-        new Date(2023, 9, 24)
+        new Date(2026, 11, 10), 
+        new Date(2026, 11, 17), 
+        new Date(2026, 11, 24)
       ]
     }
-  }
-];
-
-// Sample events
-export const events = [
-  {
-    _id: "1",
-    name: "Community Health Fair",
-    description: "Annual health fair providing free check-ups and health education for the community",
-    location: "Community Center, 789 Main St, Centertown, CA 12345",
-    requiredSkills: ["medical", "organizing"],
-    urgency: "medium",
-    date: new Date(2023, 9, 15)
-  },
-  {
-    _id: "2",
-    name: "Food Drive",
-    description: "Collecting and distributing food to those in need",
-    location: "Food Bank, 101 Charity Ln, Givingville, NY 67890",
-    requiredSkills: ["cooking", "driving", "organizing"],
-    urgency: "high",
-    date: new Date(2023, 9, 20)
-  },
-  {
-    _id: "3",
-    name: "Technology Workshop",
-    description: "Teaching basic computer skills to seniors",
-    location: "Senior Center, 202 Elder Rd, Ageville, CA 54321",
-    requiredSkills: ["tech", "teaching"],
-    urgency: "low",
-    date: new Date(2023, 9, 25)
-  }
-];
-
-// Sample volunteer-event matches
-export const matches = [
-  {
-    _id: "1",
-    volunteerId: "2",
-    eventId: "1",
-    status: "confirmed"
-  },
-  {
-    _id: "2",
-    volunteerId: "2",
-    eventId: "2",
-    status: "pending"
-  }
-];
-
-// Sample volunteer history
-export const history = [
-  {
-    _id: "1",
-    volunteerId: "2",
-    eventId: "1",
-    status: "completed",
-    hours: 4,
-    feedback: "It was a great experience helping at the health fair!"
   }
 ];
