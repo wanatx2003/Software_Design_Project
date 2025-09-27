@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
-import user_icon from '../Assets/account.png'
 import email_icon from '../Assets/email-outline.png'
 import password_icon from '../Assets/lock.png'
 // Import mock API
@@ -10,8 +9,6 @@ import { mockAuthApi } from '../../utils/mockApi';
 const Register = ({ login, isAuthenticated }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -27,7 +24,7 @@ const Register = ({ login, isAuthenticated }) => {
         }
     }, [isAuthenticated, navigate]);
     
-    const { firstName, lastName, email, password, confirmPassword, role } = formData;
+    const { email, password, confirmPassword, role } = formData;
     
     const onChange = e => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,9 +37,6 @@ const Register = ({ login, isAuthenticated }) => {
     
     const validateForm = () => {
         const newErrors = {};
-        
-        if (!firstName) newErrors.firstName = 'First name is required';
-        if (!lastName) newErrors.lastName = 'Last name is required';
         
         if (!email) newErrors.email = 'Email is required';
         else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid';
@@ -67,8 +61,6 @@ const Register = ({ login, isAuthenticated }) => {
         try {
             // Use mock API for registration
             const data = await mockAuthApi.register({
-                firstName,
-                lastName,
                 email,
                 password,
                 role
@@ -120,32 +112,6 @@ const Register = ({ login, isAuthenticated }) => {
                 <form onSubmit={onSubmit} className="inputs">
                     <div className="inputs">
                         <div className="input">
-                            <img src={user_icon} alt="" />
-                            <input 
-                                type="text" 
-                                placeholder="First Name"
-                                name="firstName"
-                                value={firstName}
-                                onChange={onChange}
-                                required
-                            />
-                        </div>
-                        {errors.firstName && <span className="error-text">{errors.firstName}</span>}
-                        
-                        <div className="input">
-                            <img src={user_icon} alt="" />
-                            <input 
-                                type="text" 
-                                placeholder="Last Name"
-                                name="lastName"
-                                value={lastName}
-                                onChange={onChange}
-                                required
-                            />
-                        </div>
-                        {errors.lastName && <span className="error-text">{errors.lastName}</span>}
-
-                        <div className="input">
                             <img src={email_icon} alt="" />
                             <input 
                                 type="email" 
@@ -184,8 +150,8 @@ const Register = ({ login, isAuthenticated }) => {
                             />
                         </div>
                         {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
-
                     </div>
+                    
                     <div className="alreadyLogin">Already have an account? &nbsp;<Link to="/login">Login</Link></div>
 
                     <div className="submit-container">

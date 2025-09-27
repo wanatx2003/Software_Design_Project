@@ -32,8 +32,8 @@ export const mockAuthApi = {
     const newUser = {
       id: (users.length + 1).toString(),
       email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
+      firstName: '', // Empty - to be filled in profile
+      lastName: '',  // Empty - to be filled in profile
       role: userData.role || "volunteer", // Default role
       profile: null // Profile not yet completed
     };
@@ -151,6 +151,18 @@ export const mockMatchesApi = {
   getUserMatches: async (userId) => {
     await delay(500);
     return matches.filter(m => m.volunteerId === userId);
+  },
+  
+  createMatch: async (matchData) => {
+    await delay(800);
+    
+    const newMatch = {
+      _id: (matches.length + 1).toString(),
+      ...matchData
+    };
+    
+    matches.push(newMatch);
+    return newMatch;
   }
 };
 

@@ -91,10 +91,18 @@ const Dashboard = ({ user }) => {
 
   // Check if user has completed profile
   const profileIncomplete = !(user?.profile?.fullName);
+  const nameIncomplete = !user?.firstName || !user?.lastName;
 
   return (
     <div className="dashboard-container">
       <h2>Welcome, {user?.firstName || 'Volunteer'}</h2>
+      
+      {nameIncomplete && (
+        <div className="profile-alert">
+          <p>Please complete your profile with your first and last name.</p>
+          <a href="/profile" className="profile-link">Complete Profile</a>
+        </div>
+      )}
       
       {profileIncomplete && (
         <div className="profile-alert">
