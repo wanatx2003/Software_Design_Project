@@ -88,7 +88,7 @@ const AdminDashboard = ({ user }) => {
       </div>
       
       <div className="admin-panels">
-        <div className="admin-panel">
+        <div className="admin-panel" tabIndex="0">
           <h3>Upcoming Events</h3>
           {recentEvents.length === 0 ? (
             <p>No upcoming events.</p>
@@ -111,7 +111,7 @@ const AdminDashboard = ({ user }) => {
           )}
         </div>
         
-        <div className="admin-panel">
+  <div className="admin-panel" tabIndex="0">
           <h3>Pending Volunteer Matches</h3>
           {pendingMatches.length === 0 ? (
             <p>No pending matches.</p>
@@ -130,7 +130,7 @@ const AdminDashboard = ({ user }) => {
         </div>
       </div>
       
-      <div className="admin-quick-actions">
+  <div className="admin-quick-actions" tabIndex="0">
         <h3>Quick Actions</h3>
         <div className="admin-button-group">
           <Link to="/admin/events" className="admin-button">
