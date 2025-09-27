@@ -174,6 +174,19 @@ const EventManagement = () => {
       
       if (response.ok) {
         await fetchEvents();
+        
+        // Trigger bell notification for event updates
+        if (isEditing) {
+          const bellNotificationEvent = document.createEvent('CustomEvent');
+          bellNotificationEvent.initCustomEvent('bellNotification', true, true, {
+            message: `Event '${currentEvent.name}' has been updated`,
+            type: 'update',
+            eventName: currentEvent.name,
+            eventId: currentEvent._id
+          });
+          window.dispatchEvent(bellNotificationEvent);
+        }
+        
         resetForm();
         setShowForm(false);
       } else {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import { mockEventsApi, mockMatchesApi } from '../../utils/mockApi';
 
 const Dashboard = ({ user }) => {
   const [events, setEvents] = useState([]);
@@ -10,26 +11,17 @@ const Dashboard = ({ user }) => {
   useEffect(() => {
     fetchEvents();
     fetchMatches();
-  }, []);
+  }, [user]);
 
   const fetchEvents = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/events', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const data = await mockEventsApi.getAllEvents();
+      setEvents(data);
       
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data);
-        
-        // Filter for upcoming events (events in the future)
-        const now = new Date();
-        const upcoming = data.filter(event => new Date(event.date) > now);
-        setUpcomingEvents(upcoming);
-      }
+      // Filter for upcoming events
+      const now = new Date();
+      const upcoming = data.filter(event => new Date(event.date) > now);
+      setUpcomingEvents(upcoming);
     } catch (err) {
       console.error('Error fetching events:', err);
     } finally {
@@ -39,15 +31,8 @@ const Dashboard = ({ user }) => {
 
   const fetchMatches = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/matches/my-matches', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
+      if (user && user.id) {
+        const data = await mockMatchesApi.getUserMatches(user.id);
         setMatchedEvents(data);
       }
     } catch (err) {
@@ -57,34 +42,36 @@ const Dashboard = ({ user }) => {
 
   const handleVolunteerClick = async (eventId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/matches/volunteer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ eventId })
-      });
-      
-      if (response.ok) {
+      if (user && user.id) {
+        await mockMatchesApi.createMatch({
+          volunteerId: user.id,
+          eventId: eventId,
+          status: 'pending'
+        });
+        
         // Refresh matched events
         fetchMatches();
+        
+        // Find the event name for the notification
+        const event = events.find(e => e._id === eventId);
+        
         // Display success notification
-        const event = document.createEvent('CustomEvent');
-        event.initCustomEvent('notification', true, true, {
-          message: 'You have successfully volunteered for this event!',
+        const notificationEvent = document.createEvent('CustomEvent');
+        notificationEvent.initCustomEvent('notification', true, true, {
+          message: `You have successfully volunteered for ${event?.name || 'this event'}!`,
           type: 'success'
         });
-        window.dispatchEvent(event);
-      } else {
-        // Display error notification
-        const event = document.createEvent('CustomEvent');
-        event.initCustomEvent('notification', true, true, {
-          message: 'Could not volunteer for this event. Please try again.',
-          type: 'error'
+        window.dispatchEvent(notificationEvent);
+
+        // Add bell notification for event assignment
+        const bellNotificationEvent = document.createEvent('CustomEvent');
+        bellNotificationEvent.initCustomEvent('bellNotification', true, true, {
+          message: `You have been matched to '${event?.name || 'Unknown Event'}' event`,
+          type: 'assignment',
+          eventName: event?.name || 'Unknown Event',
+          eventId: eventId
         });
-        window.dispatchEvent(event);
+        window.dispatchEvent(bellNotificationEvent);
       }
     } catch (err) {
       console.error('Error volunteering:', err);
@@ -194,5 +181,6 @@ const Dashboard = ({ user }) => {
     </div>
   );
 };
+
 
 export default Dashboard;

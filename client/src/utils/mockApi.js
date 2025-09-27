@@ -34,7 +34,7 @@ export const mockAuthApi = {
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
-      role: "volunteer", // Default role
+      role: userData.role || "volunteer", // Default role
       profile: null // Profile not yet completed
     };
     

@@ -7,64 +7,106 @@ import password_icon from '../Assets/lock.png'
 // Import mock API
 import { mockAuthApi } from '../../utils/mockApi';
 
-const Register = () => {
-
-    const [action,setAction] = useState("Create new account");
-
-    const [selection,setSelection] = useState("Volunteer");
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-
+const Register = ({ login, isAuthenticated }) => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-      email: '',
-      password: '',
-      confirmPassword: '', // Add this line
-      // ...other fields
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: 'volunteer'
     });
     const [errors, setErrors] = useState({});
-
-    const handleActionChange = (newAction) => {
-    if (newAction !== action) {
-        setAction(newAction);
-        setEmail("");
-        setPassword("");
-    }
-    };
-  const validateForm = () => {
-    const errors = {};
-    // ...other validations
-    if (!formData.confirmPassword) {
-      errors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    // ...set errors and return
-  };
-  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
-    const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-
-    if (form.checkValidity()) {
+    const [loading, setLoading] = useState(false);
+    
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
+    
+    const { firstName, lastName, email, password, confirmPassword, role } = formData;
+    
+    const onChange = e => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
         
-        const formData = {
-        email,
-        password,
-        action,
-        role: action === "Sign Up" ? selection : null,
-        };
-
-        console.log("Form data to submit:", formData);
-
-        
-        setEmail("");
-        setPassword("");
-        setSelection("Volunteer"); 
-    } else {
-        form.reportValidity(); 
-    }
+        // Clear error when field is edited
+        if (errors[e.target.name]) {
+            setErrors({ ...errors, [e.target.name]: undefined });
+        }
     };
+    
+    const validateForm = () => {
+        const newErrors = {};
+        
+        if (!firstName) newErrors.firstName = 'First name is required';
+        if (!lastName) newErrors.lastName = 'Last name is required';
+        
+        if (!email) newErrors.email = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid';
+        
+        if (!password) newErrors.password = 'Password is required';
+        else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+        
+        if (!confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
+        else if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    
+    const onSubmit = async e => {
+        e.preventDefault();
+        
+        if (!validateForm()) return;
+        
+        setLoading(true);
+        
+        try {
+            // Use mock API for registration
+            const data = await mockAuthApi.register({
+                firstName,
+                lastName,
+                email,
+                password,
+                role
+            });
+            
+            // Show success notification
+            const event = document.createEvent('CustomEvent');
+            event.initCustomEvent('notification', true, true, {
+                message: 'Account created successfully! Please complete your profile.',
+                type: 'success',
+                duration: 5000
+            });
+            window.dispatchEvent(event);
+            
+            // Log in the user with the returned token and user data
+            login(data.token, data.user);
+            
+            // Redirect to profile completion page
+            navigate('/profile');
+            
+        } catch (err) {
+            console.error('Registration error:', err);
+            setErrors({ 
+                general: err.message || 'Registration failed. Please try again.' 
+            });
+            setLoading(false);
+            
+            // Show error notification
+            const event = document.createEvent('CustomEvent');
+            event.initCustomEvent('notification', true, true, {
+                message: err.message || 'Registration failed. Please try again.',
+                type: 'error',
+                duration: 5000
+            });
+            window.dispatchEvent(event);
+        }
+    };
+
     return (
         <div>
             <div className="container">
@@ -73,46 +115,93 @@ const Register = () => {
                     <div className="underline"></div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="inputs">
+                {errors.general && <div className="error-message">{errors.general}</div>}
+
+                <form onSubmit={onSubmit} className="inputs">
                     <div className="inputs">
+                        <div className="input">
+                            <img src={user_icon} alt="" />
+                            <input 
+                                type="text" 
+                                placeholder="First Name"
+                                name="firstName"
+                                value={firstName}
+                                onChange={onChange}
+                                required
+                            />
+                        </div>
+                        {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+                        
+                        <div className="input">
+                            <img src={user_icon} alt="" />
+                            <input 
+                                type="text" 
+                                placeholder="Last Name"
+                                name="lastName"
+                                value={lastName}
+                                onChange={onChange}
+                                required
+                            />
+                        </div>
+                        {errors.lastName && <span className="error-text">{errors.lastName}</span>}
 
                         <div className="input">
-                            <img src= {email_icon} alt="" />
+                            <img src={email_icon} alt="" />
                             <input 
                                 type="email" 
                                 placeholder="Email"
                                 name="email"
-                                required
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={onChange}
+                                required
                             />
                         </div>
+                        {errors.email && <span className="error-text">{errors.email}</span>}
+                        
                         <div className="input">
-                            <img src= {password_icon} alt="" />
+                            <img src={password_icon} alt="" />
                             <input 
                                 type="password" 
                                 placeholder="Password"
                                 name="password"
-                                required
-                                minLength={4}
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={onChange}
+                                required
+                                minLength={6}
                             />
                         </div>
+                        {errors.password && <span className="error-text">{errors.password}</span>}
+                        
+                        <div className="input">
+                            <img src={password_icon} alt="" />
+                            <input 
+                                type="password" 
+                                placeholder="Confirm Password"
+                                name="confirmPassword"
+                                value={confirmPassword}
+                                onChange={onChange}
+                                required
+                            />
+                        </div>
+                        {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
 
                     </div>
-                    <div className="alreadyLogin">Already have an account? &nbsp;<a href="/login">Login</a></div>
+                    <div className="alreadyLogin">Already have an account? &nbsp;<Link to="/login">Login</Link></div>
 
                     <div className="submit-container">
-                        <button type="submit" className={action==="Login"?"submit gray":"submit"} onClick={() => handleActionChange("Sign Up")}>Sign Up</button>
-                        
-                
+                        <button 
+                            type="submit" 
+                            className="submit" 
+                            disabled={loading}
+                        >
+                            {loading ? 'Creating Account...' : 'Sign Up'}
+                        </button>
                     </div>       
                 </form>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Register;
-                  
+
